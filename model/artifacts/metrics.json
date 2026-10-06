@@ -1,0 +1,9 @@
+{
+  "images": 54305,
+  "classes": 38,
+  "epochs": 8,
+  "validation_accuracy": 0.733818,
+  "validation_top_3_accuracy": 0.913083,
+  "validation_loss": 0.87502,
+  "warning": "PlantVillage images are controlled laboratory-style images. Validate with local field images before using predictions for crop-management decisions."
+}

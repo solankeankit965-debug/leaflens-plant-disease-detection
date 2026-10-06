@@ -40,6 +40,8 @@ h2 { margin:4px 0 0; font:500 34px/1 Georgia,serif; letter-spacing:-.04em; }
 .primary-action { width:100%; display:flex; justify-content:space-between; margin-top:16px; padding:16px 20px; border:0; border-radius:15px; color:#fff; background:var(--ink); font-weight:800; cursor:pointer; transition:.2s; }
 .primary-action:hover:not(:disabled) { background:var(--green); transform:translateY(-1px); }
 .primary-action:disabled { opacity:.42; cursor:not-allowed; }
+.validation-error { display:grid; gap:4px; margin-top:12px; padding:13px 15px; border:1px solid #e9b9ad; border-radius:13px; color:#7f2f24; background:#fff1ed; font-size:11px; line-height:1.45; }
+.validation-error b { font-size:12px; }
 .privacy-note { margin:12px 0 0; text-align:center; color:#89948e; font-size:10px; }
 .field-strip { max-width:1170px; margin:0 auto 56px; padding:24px 30px; display:grid; grid-template-columns:1.5fr repeat(3,1fr) auto; align-items:center; gap:28px; border-radius:20px; color:#fff; background:var(--ink); box-shadow:0 20px 50px rgba(23,54,44,.16); }
 .field-strip>div { min-height:48px; padding-left:22px; border-left:1px solid rgba(255,255,255,.16); }

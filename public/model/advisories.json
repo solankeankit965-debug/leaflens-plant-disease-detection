@@ -1,0 +1,420 @@
+{
+  "Apple___Apple_scab": {
+    "crop": "Apple",
+    "condition": "Apple scab",
+    "summary": "The image most closely matches Apple scab on Apple.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Apple___Black_rot": {
+    "crop": "Apple",
+    "condition": "Black rot",
+    "summary": "The image most closely matches Black rot on Apple.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Apple___Cedar_apple_rust": {
+    "crop": "Apple",
+    "condition": "Cedar apple rust",
+    "summary": "The image most closely matches Cedar apple rust on Apple.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Apple___healthy": {
+    "crop": "Apple",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Blueberry___healthy": {
+    "crop": "Blueberry",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Cherry_(including_sour)___Powdery_mildew": {
+    "crop": "Cherry including sour",
+    "condition": "Powdery mildew",
+    "summary": "The image most closely matches Powdery mildew on Cherry including sour.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Cherry_(including_sour)___healthy": {
+    "crop": "Cherry including sour",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+    "crop": "Corn maize",
+    "condition": "Cercospora leaf spot Gray leaf spot",
+    "summary": "The image most closely matches Cercospora leaf spot Gray leaf spot on Corn maize.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Corn_(maize)___Common_rust_": {
+    "crop": "Corn maize",
+    "condition": "Common rust",
+    "summary": "The image most closely matches Common rust on Corn maize.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Corn_(maize)___Northern_Leaf_Blight": {
+    "crop": "Corn maize",
+    "condition": "Northern Leaf Blight",
+    "summary": "The image most closely matches Northern Leaf Blight on Corn maize.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Corn_(maize)___healthy": {
+    "crop": "Corn maize",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Grape___Black_rot": {
+    "crop": "Grape",
+    "condition": "Black rot",
+    "summary": "The image most closely matches Black rot on Grape.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Grape___Esca_(Black_Measles)": {
+    "crop": "Grape",
+    "condition": "Esca (Black Measles)",
+    "summary": "The image most closely matches Esca (Black Measles) on Grape.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+    "crop": "Grape",
+    "condition": "Leaf blight (Isariopsis Leaf Spot)",
+    "summary": "The image most closely matches Leaf blight (Isariopsis Leaf Spot) on Grape.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Grape___healthy": {
+    "crop": "Grape",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Orange___Haunglongbing_(Citrus_greening)": {
+    "crop": "Orange",
+    "condition": "Haunglongbing (Citrus greening)",
+    "summary": "The image most closely matches Haunglongbing (Citrus greening) on Orange.",
+    "actions": [
+      "Inspect the full tree for uneven yellowing and fruit symptoms.",
+      "Report suspected citrus greening through your local citrus or agriculture authority.",
+      "Manage citrus psyllid vectors only with locally approved guidance."
+    ],
+    "urgency": "High"
+  },
+  "Peach___Bacterial_spot": {
+    "crop": "Peach",
+    "condition": "Bacterial spot",
+    "summary": "The image most closely matches Bacterial spot on Peach.",
+    "actions": [
+      "Avoid handling plants while leaves are wet.",
+      "Remove badly affected leaves and clean tools between plants.",
+      "Use disease-free seed or transplants and ask a local extension officer about registered control options."
+    ],
+    "urgency": "Medium"
+  },
+  "Peach___healthy": {
+    "crop": "Peach",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Pepper,_bell___Bacterial_spot": {
+    "crop": "Pepper bell",
+    "condition": "Bacterial spot",
+    "summary": "The image most closely matches Bacterial spot on Pepper bell.",
+    "actions": [
+      "Avoid handling plants while leaves are wet.",
+      "Remove badly affected leaves and clean tools between plants.",
+      "Use disease-free seed or transplants and ask a local extension officer about registered control options."
+    ],
+    "urgency": "Medium"
+  },
+  "Pepper,_bell___healthy": {
+    "crop": "Pepper bell",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Potato___Early_blight": {
+    "crop": "Potato",
+    "condition": "Early blight",
+    "summary": "The image most closely matches Early blight on Potato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Potato___Late_blight": {
+    "crop": "Potato",
+    "condition": "Late blight",
+    "summary": "The image most closely matches Late blight on Potato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Potato___healthy": {
+    "crop": "Potato",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Raspberry___healthy": {
+    "crop": "Raspberry",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Soybean___healthy": {
+    "crop": "Soybean",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Squash___Powdery_mildew": {
+    "crop": "Squash",
+    "condition": "Powdery mildew",
+    "summary": "The image most closely matches Powdery mildew on Squash.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Strawberry___Leaf_scorch": {
+    "crop": "Strawberry",
+    "condition": "Leaf scorch",
+    "summary": "The image most closely matches Leaf scorch on Strawberry.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Strawberry___healthy": {
+    "crop": "Strawberry",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  },
+  "Tomato___Bacterial_spot": {
+    "crop": "Tomato",
+    "condition": "Bacterial spot",
+    "summary": "The image most closely matches Bacterial spot on Tomato.",
+    "actions": [
+      "Avoid handling plants while leaves are wet.",
+      "Remove badly affected leaves and clean tools between plants.",
+      "Use disease-free seed or transplants and ask a local extension officer about registered control options."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Early_blight": {
+    "crop": "Tomato",
+    "condition": "Early blight",
+    "summary": "The image most closely matches Early blight on Tomato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Late_blight": {
+    "crop": "Tomato",
+    "condition": "Late blight",
+    "summary": "The image most closely matches Late blight on Tomato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Leaf_Mold": {
+    "crop": "Tomato",
+    "condition": "Leaf Mold",
+    "summary": "The image most closely matches Leaf Mold on Tomato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Septoria_leaf_spot": {
+    "crop": "Tomato",
+    "condition": "Septoria leaf spot",
+    "summary": "The image most closely matches Septoria leaf spot on Tomato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Spider_mites Two-spotted_spider_mite": {
+    "crop": "Tomato",
+    "condition": "Spider mites Two-spotted spider mite",
+    "summary": "The image most closely matches Spider mites Two-spotted spider mite on Tomato.",
+    "actions": [
+      "Inspect the undersides of leaves for mites and fine webbing.",
+      "Reduce plant stress and avoid dusty, dry conditions.",
+      "Use only locally approved mite-control methods after confirming the pest."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Target_Spot": {
+    "crop": "Tomato",
+    "condition": "Target Spot",
+    "summary": "The image most closely matches Target Spot on Tomato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+    "crop": "Tomato",
+    "condition": "Tomato Yellow Leaf Curl Virus",
+    "summary": "The image most closely matches Tomato Yellow Leaf Curl Virus on Tomato.",
+    "actions": [
+      "Remove severely affected leaves and dispose of them away from the crop.",
+      "Improve airflow and avoid prolonged leaf wetness or overhead watering.",
+      "Confirm the diagnosis locally before using any crop-protection product."
+    ],
+    "urgency": "Medium"
+  },
+  "Tomato___Tomato_mosaic_virus": {
+    "crop": "Tomato",
+    "condition": "Tomato mosaic virus",
+    "summary": "The image most closely matches Tomato mosaic virus on Tomato.",
+    "actions": [
+      "Isolate or remove clearly affected plants to reduce spread.",
+      "Check nearby plants and manage insect vectors such as whiteflies.",
+      "Use clean planting material and ask a local agriculture extension officer for crop-specific action."
+    ],
+    "urgency": "High"
+  },
+  "Tomato___healthy": {
+    "crop": "Tomato",
+    "condition": "Healthy",
+    "summary": "No matching disease pattern was found in this image.",
+    "actions": [
+      "Continue regular crop monitoring.",
+      "Photograph a single leaf in even light if symptoms appear.",
+      "Keep records of any change in colour, spots, or leaf curl."
+    ],
+    "urgency": "Low"
+  }
+}
