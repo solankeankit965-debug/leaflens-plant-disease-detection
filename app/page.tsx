@@ -174,7 +174,7 @@ export default function Home() {
       // the interface never presents a made-up diagnosis as a fact.
       if (best.confidence < 0.45 || predictionMargin < 0.08) {
         setResult(null);
-        setValidationError('No reliable match was found in the trained crop-disease classes. The leaf may be from an unsupported plant, show a condition not represented in the training data, or need a closer photo in even light.');
+        setValidationError('No reliable match was found in the supported PlantVillage crop-disease classes. The leaf may be from an unsupported crop, show a condition not represented in the training images, or need a closer photo in even light.');
         return;
       }
       const rawLabel = labels.classes[best.index];
@@ -212,7 +212,7 @@ export default function Home() {
           <span className="eyebrow"><i /> AI crop health assistant</span>
           <h1>Know what your<br />plant needs.</h1>
           <p>Scan a leaf for an instant disease check, confidence score, and practical care advice.</p>
-          <div className="hero-stats" aria-label="System highlights"><span><b>38</b> crop conditions</span><span><b>54K</b> training images</span><span><b>Local</b> browser inference</span></div>
+          <div className="hero-stats" aria-label="System highlights"><span><b>14</b> supported crops</span><span><b>38</b> named outcomes</span><span><b>54K</b> training images</span></div>
         </div>
         <section className="scan-card" id="scan" aria-labelledby="scan-title">
           <div className="scan-heading"><div><span className="step">STEP 01</span><h2 id="scan-title">Scan a leaf</h2></div><span className={`model-status ${modelState === 'error' ? 'model-error' : ''}`}><i /> {modelState === 'loading' ? 'CNN loading' : modelState === 'ready' ? 'CNN ready' : 'CNN unavailable'}</span></div>
@@ -228,7 +228,7 @@ export default function Home() {
           </div>}
           <button className="primary-action" disabled={!preview || analyzing || modelState !== 'ready'} onClick={analyze}><span>{analyzing ? 'Running CNN analysis…' : 'Analyze leaf'}</span><span>{analyzing ? '◌' : '→'}</span></button>
           {validationError && <div className="validation-error" role="alert"><b>Scan paused — no diagnosis shown</b><span>{validationError}</span></div>}
-          <p className="privacy-note">Trained CNN • 54,305 PlantVillage images • Images stay in your browser.</p>
+          <p className="privacy-note">14 crops: Apple, Grape, Tomato & more • 38 PlantVillage labels • Images stay in your browser.</p>
         </section>
       </section>
 
@@ -241,7 +241,7 @@ export default function Home() {
         <div className="result-grid">
           <article className="result-main">
             <div className="result-top"><span className={`severity ${result.isHealthy ? 'healthy' : ''}`}>{result.severity}</span><span>LeafLens CNN • 64×64</span></div>
-            <p className="crop-label">{result.crop}</p><h2>{result.disease}</h2><p className="result-summary">{result.summary}</p>
+            <p className="crop-label">Detected crop · {result.crop}</p><h2>{result.disease}</h2><p className="result-summary">{result.summary}</p>
             <div className="confidence-row"><div><small>Model confidence</small><strong>{result.confidence.toFixed(1)}%</strong></div><div className="confidence-track"><span style={{ width: `${Math.min(result.confidence, 100)}%` }} /></div></div>
             <div className="alternatives"><span>Other possibilities</span>{result.alternatives.map((item) => <b key={item.label}>{item.label} <em>{item.confidence.toFixed(1)}%</em></b>)}</div>
           </article>
