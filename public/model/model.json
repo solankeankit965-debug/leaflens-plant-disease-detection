@@ -8,7 +8,7 @@
     "model_config": {
       "class_name": "Sequential",
       "config": {
-        "name": "leaflens_plantvillage_cnn",
+        "name": "leaflens_plantvillage_all_raw_cnn",
         "trainable": true,
         "dtype": "float32",
         "layers": [

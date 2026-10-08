@@ -83,5 +83,10 @@
     64,
     64
   ],
-  "source": "PlantVillage raw/color"
+  "source": "PlantVillage raw/color + raw/grayscale + raw/segmented",
+  "variants": [
+    "color",
+    "grayscale",
+    "segmented"
+  ]
 }

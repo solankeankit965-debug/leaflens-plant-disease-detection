@@ -38,6 +38,7 @@ next-env.d.ts
 /work/
 /.venv-model/
 /model/.python-deps/
+/model/__pycache__/
 
 # Local training/demo artifacts and presentation working files
 /.tmp-leaflens-presentation/

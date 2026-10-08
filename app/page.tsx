@@ -212,7 +212,7 @@ export default function Home() {
           <span className="eyebrow"><i /> AI crop health assistant</span>
           <h1>Know what your<br />plant needs.</h1>
           <p>Scan a leaf for an instant disease check, confidence score, and practical care advice.</p>
-          <div className="hero-stats" aria-label="System highlights"><span><b>14</b> supported crops</span><span><b>38</b> named outcomes</span><span><b>54K</b> training images</span></div>
+          <div className="hero-stats" aria-label="System highlights"><span><b>14</b> supported crops</span><span><b>38</b> named outcomes</span><span><b>163K</b> raw images</span></div>
         </div>
         <section className="scan-card" id="scan" aria-labelledby="scan-title">
           <div className="scan-heading"><div><span className="step">STEP 01</span><h2 id="scan-title">Scan a leaf</h2></div><span className={`model-status ${modelState === 'error' ? 'model-error' : ''}`}><i /> {modelState === 'loading' ? 'CNN loading' : modelState === 'ready' ? 'CNN ready' : 'CNN unavailable'}</span></div>
