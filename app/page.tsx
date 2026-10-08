@@ -8,6 +8,14 @@ type Labels = { classes: string[]; display_names: Record<string, string>; image_
 type Result = { disease: string; crop: string; confidence: number; severity: string; summary: string; actions: string[]; isHealthy: boolean; alternatives: { label: string; confidence: number }[] };
 type LeafCheck = { valid: boolean; message?: string };
 
+const analysisStages = [
+  'Input and preprocessing',
+  'Feature extraction',
+  'Classification',
+  'Training data comparison',
+  'Evaluation',
+];
+
 function validateLeafImage(image: HTMLImageElement): LeafCheck {
   if (image.naturalWidth < 96 || image.naturalHeight < 96) {
     return { valid: false, message: 'This image is too small. Upload a clear, close-up photo of one leaf.' };
@@ -114,6 +122,7 @@ export default function Home() {
   const resultsRef = useRef<HTMLElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisStep, setAnalysisStep] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [modelState, setModelState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -140,6 +149,9 @@ export default function Home() {
   async function analyze() {
     if (!preview || analyzing || !modelRef.current || !imageRef.current || !labels) return;
     setAnalyzing(true);
+    setAnalysisStep(0);
+    const stageTimer = window.setInterval(() => setAnalysisStep((step) => Math.min(step + 1, analysisStages.length - 1)), 360);
+    const startedAt = Date.now();
     try {
       const leafCheck = validateLeafImage(imageRef.current);
       if (!leafCheck.valid) {
@@ -155,9 +167,12 @@ export default function Home() {
       const ranked = probabilities.map((confidence, index) => ({ index, confidence })).sort((a, b) => b.confidence - a.confidence);
       const best = ranked[0];
       const predictionMargin = best.confidence - ranked[1].confidence;
-      if (best.confidence < 0.25 || predictionMargin < 0.02) {
+      // A classifier must always choose a class, even when the image is not one
+      // of the crops/diseases it learned. Reject weak or ambiguous matches so
+      // the interface never presents a made-up diagnosis as a fact.
+      if (best.confidence < 0.45 || predictionMargin < 0.08) {
         setResult(null);
-        setValidationError('This photo is outside the model’s reliable range. Use one clear leaf on a plain background.');
+        setValidationError('No reliable match was found in the trained crop-disease classes. The leaf may be from an unsupported plant, show a condition not represented in the training data, or need a closer photo in even light.');
         return;
       }
       const rawLabel = labels.classes[best.index];
@@ -173,7 +188,13 @@ export default function Home() {
         alternatives: ranked.slice(1, 4).map(({ index, confidence }) => ({ label: labels.display_names[labels.classes[index]] ?? labels.classes[index], confidence: confidence * 100 })),
       });
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-    } finally { setAnalyzing(false); }
+    } finally {
+      const minimumAnalysisTime = 1750;
+      const remaining = minimumAnalysisTime - (Date.now() - startedAt);
+      if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
+      window.clearInterval(stageTimer);
+      setAnalyzing(false);
+    }
   }
 
   return (
@@ -197,8 +218,14 @@ export default function Home() {
           <button className={`dropzone ${preview ? 'has-preview' : ''}`} onClick={() => inputRef.current?.click()} onDrop={(event) => { event.preventDefault(); chooseImage(event.dataTransfer.files?.[0]); }} onDragOver={(event) => event.preventDefault()} aria-label={preview ? 'Replace selected leaf image' : 'Choose a leaf image'}>
             {preview ? <>{/* eslint-disable-next-line @next/next/no-img-element */}<img ref={imageRef} src={preview} alt="Leaf selected for analysis" /><span className="replace-label">Replace image</span></> : <><span className="camera-icon">⌗</span><strong>Drop a clear leaf image here</strong><small>or tap to use your camera / browse files</small></>}
           </button>
+          {analyzing && <div className="analysis-loader" role="status" aria-live="polite">
+            <div className="pixel-scenes" aria-hidden="true"><span /><span /><span /><span /></div>
+            <div className="analysis-copy"><span>LEAFLENS CNN / LIVE ANALYSIS</span><strong>{analysisStages[analysisStep]}</strong><small>Checking for a confident match before showing a result.</small></div>
+            <div className="analysis-progress" aria-hidden="true"><i style={{ width: `${((analysisStep + 1) / analysisStages.length) * 100}%` }} /></div>
+            <div className="analysis-stages" aria-hidden="true">{analysisStages.map((stage, index) => <b key={stage} className={index <= analysisStep ? 'complete' : ''}>{String(index + 1).padStart(2, '0')}</b>)}</div>
+          </div>}
           <button className="primary-action" disabled={!preview || analyzing || modelState !== 'ready'} onClick={analyze}><span>{analyzing ? 'Running CNN analysis…' : 'Analyze leaf'}</span><span>{analyzing ? '◌' : '→'}</span></button>
-          {validationError && <div className="validation-error" role="alert"><b>Image not accepted</b><span>{validationError}</span></div>}
+          {validationError && <div className="validation-error" role="alert"><b>Scan paused — no diagnosis shown</b><span>{validationError}</span></div>}
           <p className="privacy-note">Trained CNN • 54,305 PlantVillage images • Images stay in your browser.</p>
         </section>
       </section>
