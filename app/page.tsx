@@ -150,7 +150,9 @@ export default function Home() {
     if (!preview || analyzing || !modelRef.current || !imageRef.current || !labels) return;
     setAnalyzing(true);
     setAnalysisStep(0);
-    const stageTimer = window.setInterval(() => setAnalysisStep((step) => Math.min(step + 1, analysisStages.length - 1)), 360);
+    // Keep every stage on screen long enough for a person to follow the
+    // processing flow, even though the browser model itself is much faster.
+    const stageTimer = window.setInterval(() => setAnalysisStep((step) => Math.min(step + 1, analysisStages.length - 1)), 900);
     const startedAt = Date.now();
     try {
       const leafCheck = validateLeafImage(imageRef.current);
@@ -189,7 +191,7 @@ export default function Home() {
       });
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } finally {
-      const minimumAnalysisTime = 1750;
+      const minimumAnalysisTime = 5200;
       const remaining = minimumAnalysisTime - (Date.now() - startedAt);
       if (remaining > 0) await new Promise((resolve) => window.setTimeout(resolve, remaining));
       window.clearInterval(stageTimer);
