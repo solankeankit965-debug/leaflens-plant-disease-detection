@@ -19,6 +19,30 @@ PYTHONPATH=model/.python-deps python3 model/generate_advisories.py
 The Keras model and metrics are stored in `model/artifacts`. The browser model,
 labels, and care guidance are stored in `public/model`.
 
+## Hybrid recognition index
+
+`model/build_training_index.py` adds a second, safe recognition path without
+replacing the CNN:
+
+- An image whose uploaded bytes exactly match a known PlantVillage source image
+  is found through a SHA-256 lookup and receives that dataset's authoritative
+  crop/disease label.
+- A new image is checked for usable detail, evaluated by the CNN, and (when
+  generated) compared with per-class CNN feature prototypes. Strong CNN matches
+  are shown as results; medium matches are labelled as similarities to verify;
+  weak matches are rejected as unsupported.
+
+Run the index builder after downloading the official raw folders and training
+the Keras model:
+
+```bash
+PYTHONPATH=model/.python-deps python3 model/build_training_index.py
+```
+
+It writes `public/model/training-index.json`. This can be a sizeable browser
+asset because it contains one secure hash per dataset image; the website loads
+it only when the user starts an analysis, not when the page first opens.
+
 The training script groups alternate image variants of the same original leaf
 by UUID before making its deterministic 80/20 split. This avoids data leakage.
 

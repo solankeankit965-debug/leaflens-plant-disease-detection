@@ -5,7 +5,9 @@ import * as tf from '@tensorflow/tfjs';
 
 type Advisory = { crop: string; condition: string; summary: string; actions: string[]; urgency: string };
 type Labels = { classes: string[]; display_names: Record<string, string>; image_size: number[] };
-type Result = { disease: string; crop: string; confidence: number; severity: string; summary: string; actions: string[]; isHealthy: boolean; alternatives: { label: string; confidence: number }[] };
+type TrainingIndex = { version: number; hashes: Record<string, string>; prototypes?: Record<string, number[]> };
+type MatchType = 'exact' | 'confirmed' | 'similar';
+type Result = { disease: string; crop: string; confidence: number; severity: string; summary: string; actions: string[]; isHealthy: boolean; alternatives: { label: string; confidence: number }[]; matchType: MatchType };
 type LeafCheck = { valid: boolean; message?: string };
 
 const analysisStages = [
@@ -29,11 +31,9 @@ function validateLeafImage(image: HTMLImageElement): LeafCheck {
   if (!context) return { valid: false, message: 'The image could not be checked. Please try another photo.' };
   context.drawImage(image, 0, 0, size, size);
   const pixels = context.getImageData(0, 0, size, size).data;
-  const vegetation = new Uint8Array(size * size);
-  let vegetationPixels = 0;
-  let centerVegetationPixels = 0;
-  let centerPixels = 0;
   let darkOrBrightPixels = 0;
+  let pixelDetail = 0;
+  let totalBrightness = 0;
 
   for (let index = 0; index < size * size; index += 1) {
     const offset = index * 4;
@@ -41,86 +41,48 @@ function validateLeafImage(image: HTMLImageElement): LeafCheck {
     const green = pixels[offset + 1];
     const blue = pixels[offset + 2];
     const brightness = (red + green + blue) / 3;
+    totalBrightness += brightness;
     if (brightness < 18 || brightness > 247) darkOrBrightPixels += 1;
-
-    // Leaves in this tomato model range from muted green to yellow-green.
-    // Excess-green is more stable than a fixed hue under indoor/field lighting.
-    const excessGreen = 2 * green - red - blue;
-    const isVegetation = green > 28 && green >= blue * 1.03 && excessGreen > 12 && green - red > -8;
-    if (isVegetation) {
-      vegetation[index] = 1;
-      vegetationPixels += 1;
-    }
-
-    const x = index % size;
-    const y = Math.floor(index / size);
-    if (x >= 24 && x < 72 && y >= 24 && y < 72) {
-      centerPixels += 1;
-      if (isVegetation) centerVegetationPixels += 1;
-    }
+    if (index % size && Math.abs(brightness - ((pixels[offset - 4] + pixels[offset - 3] + pixels[offset - 2]) / 3)) > 8) pixelDetail += 1;
   }
 
   if (darkOrBrightPixels / (size * size) > 0.72) {
     return { valid: false, message: 'The photo is too dark or overexposed. Retake it in even light.' };
   }
 
-  // Find the largest connected vegetation region. This prevents a few green
-  // pixels in an unrelated image from being mistaken for a leaf.
-  const visited = new Uint8Array(size * size);
-  let largestRegion = 0;
-  let largestWidth = 0;
-  let largestHeight = 0;
-  const queue = new Int32Array(size * size);
-  for (let start = 0; start < vegetation.length; start += 1) {
-    if (!vegetation[start] || visited[start]) continue;
-    let head = 0;
-    let tail = 0;
-    let minX = size;
-    let maxX = 0;
-    let minY = size;
-    let maxY = 0;
-    visited[start] = 1;
-    queue[tail++] = start;
-    while (head < tail) {
-      const current = queue[head++];
-      const x = current % size;
-      const y = Math.floor(current / size);
-      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-      const neighbors = [current - 1, current + 1, current - size, current + size];
-      for (const neighbor of neighbors) {
-        if (neighbor < 0 || neighbor >= vegetation.length || visited[neighbor] || !vegetation[neighbor]) continue;
-        const neighborX = neighbor % size;
-        if (Math.abs(neighborX - x) > 1) continue;
-        visited[neighbor] = 1;
-        queue[tail++] = neighbor;
-      }
-    }
-    if (tail > largestRegion) {
-      largestRegion = tail;
-      largestWidth = maxX - minX + 1;
-      largestHeight = maxY - minY + 1;
-    }
-  }
-
-  const vegetationRatio = vegetationPixels / (size * size);
-  const centerRatio = centerVegetationPixels / centerPixels;
-  const connectedRatio = vegetationPixels ? largestRegion / vegetationPixels : 0;
-  const hasLeafRegion = vegetationRatio >= 0.1 && centerRatio >= 0.08 && connectedRatio >= 0.45
-    && largestWidth >= 18 && largestHeight >= 18;
-
-  if (!hasLeafRegion) {
-    return { valid: false, message: 'No clear leaf was detected. Upload a close-up photo containing one leaf.' };
+  if (pixelDetail / (size * size) < 0.012 || totalBrightness / (size * size) < 22) {
+    return { valid: false, message: 'The image has too little visible leaf detail. Use a sharp, close-up photo of one leaf.' };
   }
   return { valid: true };
+}
+
+async function fileSha256(file: File): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+  return Array.from(new Uint8Array(digest), (part) => part.toString(16).padStart(2, '0')).join('');
+}
+
+function cosineSimilarity(first: number[], second: number[]): number {
+  let dot = 0;
+  let firstMagnitude = 0;
+  let secondMagnitude = 0;
+  for (let index = 0; index < Math.min(first.length, second.length); index += 1) {
+    dot += first[index] * second[index];
+    firstMagnitude += first[index] ** 2;
+    secondMagnitude += second[index] ** 2;
+  }
+  return firstMagnitude && secondMagnitude ? dot / Math.sqrt(firstMagnitude * secondMagnitude) : 0;
 }
 
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const modelRef = useRef<tf.LayersModel | null>(null);
+  const featureModelRef = useRef<tf.LayersModel | null>(null);
+  const trainingIndexRef = useRef<Promise<TrainingIndex | null> | null>(null);
   const resultsRef = useRef<HTMLElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedHash, setSelectedHash] = useState<string | null>(null);
+  const [hashingImage, setHashingImage] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisStep, setAnalysisStep] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
@@ -136,15 +98,47 @@ export default function Home() {
       fetch('/model/labels.json').then((response) => response.json() as Promise<Labels>),
       fetch('/model/advisories.json').then((response) => response.json() as Promise<Record<string, Advisory>>),
     ])
-      .then(([model, modelLabels, modelAdvisories]) => { if (active) { modelRef.current = model; setLabels(modelLabels); setAdvisories(modelAdvisories); setModelState('ready'); } })
+      .then(([model, modelLabels, modelAdvisories]) => {
+        if (!active) return;
+        modelRef.current = model;
+        try { featureModelRef.current = tf.model({ inputs: model.inputs, outputs: model.getLayer('dense').output }); } catch { featureModelRef.current = null; }
+        setLabels(modelLabels); setAdvisories(modelAdvisories); setModelState('ready');
+      })
       .catch(() => { if (active) setModelState('error'); });
-    return () => { active = false; modelRef.current?.dispose(); };
+    return () => { active = false; featureModelRef.current?.dispose(); modelRef.current?.dispose(); };
   }, []);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
-  function chooseImage(file?: File) {
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
+      const pastedImage = Array.from(event.clipboardData?.items ?? []).find((item) => item.type.startsWith('image/'))?.getAsFile();
+      if (pastedImage) { event.preventDefault(); void chooseImage(pastedImage); }
+    };
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  });
+  async function chooseImage(file?: File) {
     if (!file || !file.type.startsWith('image/')) return;
     if (preview) URL.revokeObjectURL(preview);
-    setPreview(URL.createObjectURL(file)); setResult(null); setValidationError(null);
+    setPreview(URL.createObjectURL(file)); setResult(null); setValidationError(null); setSelectedHash(null); setHashingImage(true);
+    try { setSelectedHash(await fileSha256(file)); } catch { setSelectedHash(null); } finally { setHashingImage(false); }
+  }
+  async function getTrainingIndex(): Promise<TrainingIndex | null> {
+    if (!trainingIndexRef.current) {
+      trainingIndexRef.current = fetch('/model/training-index.json')
+        .then((response) => response.ok ? response.json() as Promise<TrainingIndex> : null)
+        .catch(() => null);
+    }
+    return trainingIndexRef.current;
+  }
+  function makeResult(rawLabel: string, confidence: number, alternatives: { label: string; confidence: number }[], matchType: MatchType): Result {
+    const advisory = advisories[rawLabel];
+    return {
+      disease: advisory?.condition ?? labels?.display_names[rawLabel] ?? rawLabel,
+      crop: advisory?.crop ?? 'Plant', severity: matchType === 'exact' ? 'Known sample' : matchType === 'similar' ? 'Verify' : advisory?.urgency ?? 'Review',
+      summary: matchType === 'exact' ? 'Exact image match found in the indexed PlantVillage dataset.' : matchType === 'similar' ? `This is the closest supported pattern match (${confidence.toFixed(1)}%). Verify it with another clear image or an agricultural expert.` : advisory?.summary ?? 'Review this result with a local crop adviser.',
+      actions: advisory?.actions ?? ['Capture another clear image.', 'Inspect nearby plants for similar symptoms.', 'Confirm the diagnosis with a local agriculture extension service.'],
+      isHealthy: advisory?.condition === 'Healthy', confidence, alternatives, matchType,
+    };
   }
   async function analyze() {
     if (!preview || analyzing || !modelRef.current || !imageRef.current || !labels) return;
@@ -155,40 +149,52 @@ export default function Home() {
     const stageTimer = window.setInterval(() => setAnalysisStep((step) => Math.min(step + 1, analysisStages.length - 1)), 900);
     const startedAt = Date.now();
     try {
+      // Path 1: a byte-for-byte match has an authoritative PlantVillage label.
+      // This preserves the original dataset path without asking the CNN to guess.
+      const trainingIndex = await getTrainingIndex();
+      const exactLabel = selectedHash ? trainingIndex?.hashes?.[selectedHash] : undefined;
+      if (exactLabel) {
+        setValidationError(null);
+        setResult(makeResult(exactLabel, 100, [], 'exact'));
+        setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+        return;
+      }
       const leafCheck = validateLeafImage(imageRef.current);
       if (!leafCheck.valid) {
         setResult(null);
-        setValidationError(leafCheck.message ?? 'This does not appear to be a leaf photo.');
+        setValidationError(leafCheck.message ?? 'This image cannot be analysed clearly.');
         return;
       }
-      const probabilities = tf.tidy(() => {
+      const analysis = tf.tidy(() => {
         const input = tf.browser.fromPixels(imageRef.current!).resizeBilinear([labels.image_size[0], labels.image_size[1]]).toFloat().expandDims(0);
         const prediction = modelRef.current!.predict(input) as tf.Tensor;
-        return Array.from(prediction.dataSync());
+        const features = featureModelRef.current?.predict(input) as tf.Tensor | undefined;
+        return { probabilities: Array.from(prediction.dataSync()), features: features ? Array.from(features.dataSync()) : [] };
       });
+      const probabilities = analysis.probabilities;
       const ranked = probabilities.map((confidence, index) => ({ index, confidence })).sort((a, b) => b.confidence - a.confidence);
       const best = ranked[0];
       const predictionMargin = best.confidence - ranked[1].confidence;
-      // A classifier must always choose a class, even when the image is not one
-      // of the crops/diseases it learned. Reject weak or ambiguous matches so
-      // the interface never presents a made-up diagnosis as a fact.
-      if (best.confidence < 0.45 || predictionMargin < 0.08) {
+      const bestLabel = labels.classes[best.index];
+      const prototypeMatches = Object.entries(trainingIndex?.prototypes ?? {})
+        .map(([label, prototype]) => ({ label, similarity: cosineSimilarity(analysis.features, prototype) }))
+        .sort((first, second) => second.similarity - first.similarity);
+      const closestPattern = prototypeMatches[0];
+      const hasStrongCnnMatch = best.confidence >= 0.45 && predictionMargin >= 0.08;
+      const hasPossiblePatternMatch = best.confidence >= 0.22 || (closestPattern?.similarity ?? 0) >= 0.68;
+      const alternatives = ranked.slice(1, 4).map(({ index, confidence }) => ({ label: labels.display_names[labels.classes[index]] ?? labels.classes[index], confidence: confidence * 100 }));
+
+      // Path 2: an unseen photo is evaluated against the learned CNN features.
+      // A strong result keeps the existing confirmed-diagnosis behaviour; a
+      // medium result is explicitly presented as a similarity to verify.
+      if (!hasStrongCnnMatch && !hasPossiblePatternMatch) {
         setResult(null);
-        setValidationError('No reliable match was found in the supported PlantVillage crop-disease classes. The leaf may be from an unsupported crop, show a condition not represented in the training images, or need a closer photo in even light.');
+        setValidationError('No close supported pattern was found. This may be an unsupported crop, a disease outside the trained classes, or a photo that needs a sharper close-up in even light.');
         return;
       }
-      const rawLabel = labels.classes[best.index];
-      const advisory = advisories[rawLabel];
-      const isHealthy = advisory?.condition === 'Healthy';
+      const similarityLabel = closestPattern?.similarity && closestPattern.similarity >= 0.68 ? closestPattern.label : bestLabel;
       setValidationError(null);
-      setResult({
-        disease: advisory?.condition ?? labels.display_names[rawLabel] ?? rawLabel,
-        crop: advisory?.crop ?? 'Plant',
-        severity: advisory?.urgency ?? 'Review', summary: advisory?.summary ?? 'Review this result with a local crop adviser.',
-        actions: advisory?.actions ?? ['Capture another clear image.', 'Inspect nearby plants for similar symptoms.', 'Confirm the diagnosis with a local agriculture extension service.'],
-        isHealthy, confidence: best.confidence * 100,
-        alternatives: ranked.slice(1, 4).map(({ index, confidence }) => ({ label: labels.display_names[labels.classes[index]] ?? labels.classes[index], confidence: confidence * 100 })),
-      });
+      setResult(makeResult(hasStrongCnnMatch ? bestLabel : similarityLabel, best.confidence * 100, alternatives, hasStrongCnnMatch ? 'confirmed' : 'similar'));
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
     } finally {
       const minimumAnalysisTime = 5200;
@@ -216,9 +222,9 @@ export default function Home() {
         </div>
         <section className="scan-card" id="scan" aria-labelledby="scan-title">
           <div className="scan-heading"><div><span className="step">STEP 01</span><h2 id="scan-title">Scan a leaf</h2></div><span className={`model-status ${modelState === 'error' ? 'model-error' : ''}`}><i /> {modelState === 'loading' ? 'CNN loading' : modelState === 'ready' ? 'CNN ready' : 'CNN unavailable'}</span></div>
-          <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" capture="environment" onChange={(event) => chooseImage(event.target.files?.[0])} hidden />
-          <button className={`dropzone ${preview ? 'has-preview' : ''}`} onClick={() => inputRef.current?.click()} onDrop={(event) => { event.preventDefault(); chooseImage(event.dataTransfer.files?.[0]); }} onDragOver={(event) => event.preventDefault()} aria-label={preview ? 'Replace selected leaf image' : 'Choose a leaf image'}>
-            {preview ? <>{/* eslint-disable-next-line @next/next/no-img-element */}<img ref={imageRef} src={preview} alt="Leaf selected for analysis" /><span className="replace-label">Replace image</span></> : <><span className="camera-icon">⌗</span><strong>Drop a clear leaf image here</strong><small>or tap to use your camera / browse files</small></>}
+          <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" capture="environment" onChange={(event) => void chooseImage(event.target.files?.[0])} hidden />
+          <button className={`dropzone ${preview ? 'has-preview' : ''}`} onClick={() => inputRef.current?.click()} onDrop={(event) => { event.preventDefault(); void chooseImage(event.dataTransfer.files?.[0]); }} onDragOver={(event) => event.preventDefault()} aria-label={preview ? 'Replace selected leaf image' : 'Choose a leaf image'}>
+            {preview ? <>{/* eslint-disable-next-line @next/next/no-img-element */}<img ref={imageRef} src={preview} alt="Leaf selected for analysis" /><span className="replace-label">Replace image</span></> : <><span className="camera-icon">⌗</span><strong>Drop or paste a clear leaf image here</strong><small>or tap to use your camera / browse files</small></>}
           </button>
           {analyzing && <div className="analysis-loader" role="status" aria-live="polite">
             <div className="pixel-scenes" aria-hidden="true"><span /><span /><span /><span /></div>
@@ -226,7 +232,7 @@ export default function Home() {
             <div className="analysis-progress" aria-hidden="true"><i style={{ width: `${((analysisStep + 1) / analysisStages.length) * 100}%` }} /></div>
             <div className="analysis-stages" aria-hidden="true">{analysisStages.map((stage, index) => <b key={stage} className={index <= analysisStep ? 'complete' : ''}>{String(index + 1).padStart(2, '0')}</b>)}</div>
           </div>}
-          <button className="primary-action" disabled={!preview || analyzing || modelState !== 'ready'} onClick={analyze}><span>{analyzing ? 'Running CNN analysis…' : 'Analyze leaf'}</span><span>{analyzing ? '◌' : '→'}</span></button>
+          <button className="primary-action" disabled={!preview || analyzing || hashingImage || modelState !== 'ready'} onClick={analyze}><span>{hashingImage ? 'Preparing image…' : analyzing ? 'Running CNN analysis…' : 'Analyze leaf'}</span><span>{analyzing || hashingImage ? '◌' : '→'}</span></button>
           {validationError && <div className="validation-error" role="alert"><b>Scan paused — no diagnosis shown</b><span>{validationError}</span></div>}
           <p className="privacy-note">14 crops: Apple, Grape, Tomato & more • 38 PlantVillage labels • Images stay in your browser.</p>
         </section>
@@ -240,10 +246,10 @@ export default function Home() {
         <div className="section-label"><span>02</span> Diagnosis</div>
         <div className="result-grid">
           <article className="result-main">
-            <div className="result-top"><span className={`severity ${result.isHealthy ? 'healthy' : ''}`}>{result.severity}</span><span>LeafLens CNN • 64×64</span></div>
+            <div className="result-top"><span className={`severity ${result.isHealthy ? 'healthy' : ''}`}>{result.severity}</span><span>{result.matchType === 'exact' ? 'Known PlantVillage sample' : result.matchType === 'similar' ? 'Similarity match • verify' : 'LeafLens CNN • 64×64'}</span></div>
             <p className="crop-label">Detected crop · {result.crop}</p><h2>{result.disease}</h2><p className="result-summary">{result.summary}</p>
             <div className="confidence-row"><div><small>Model confidence</small><strong>{result.confidence.toFixed(1)}%</strong></div><div className="confidence-track"><span style={{ width: `${Math.min(result.confidence, 100)}%` }} /></div></div>
-            <div className="alternatives"><span>Other possibilities</span>{result.alternatives.map((item) => <b key={item.label}>{item.label} <em>{item.confidence.toFixed(1)}%</em></b>)}</div>
+            <div className="alternatives"><span>{result.matchType === 'exact' ? 'Dataset match verified' : 'Other possibilities'}</span>{result.alternatives.map((item) => <b key={item.label}>{item.label} <em>{item.confidence.toFixed(1)}%</em></b>)}</div>
           </article>
           <article className="advisory-card">
             <span className="step">RECOMMENDED ACTIONS</span><h3>Care advisory</h3>

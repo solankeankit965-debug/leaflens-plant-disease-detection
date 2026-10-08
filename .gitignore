@@ -44,6 +44,10 @@ next-env.d.ts
 /.tmp-leaflens-presentation/
 /tomato-leaf-training-images-15/
 /tomato-leaf-training-images-15.zip
+/training_data/plantvillage-source/
+/.pptx-build/
+/.codex-finalizer/
+/output/
 /training_data/tomato/
 /model/artifacts/tomato_leaf_cnn.keras
 /model/artifacts/tomato_leaf_cnn.h5
